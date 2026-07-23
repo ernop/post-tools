@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>post.txt - Notepad</title>
+<style>
+  body {
+    background: #008080; /* classic Win95 teal desktop */
+    margin: 0;
+    padding: 48px 20px 40px;
+    font-family: Tahoma, "MS Sans Serif", Arial, sans-serif;
+  }
+  .window {
+    width: min(760px, calc(100vw - 40px));
+    max-width: calc(100vw - 40px);
+    min-width: 320px;
+    min-height: 280px;
+    margin: 0 auto;
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #404040 #404040 #ffffff;
+    box-shadow: 1px 1px 0 #000000;
+    padding: 2px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .titlebar {
+    background: #000080;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .titlebar .buttons span {
+    display: inline-block;
+    width: 16px;
+    height: 14px;
+    background: #c0c0c0;
+    border: 1px solid;
+    border-color: #ffffff #404040 #404040 #ffffff;
+    color: #000000;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 13px;
+    margin-left: 2px;
+  }
+  .menubar {
+    background: #c0c0c0;
+    color: #000000;
+    font-size: 12px;
+    padding: 3px 6px;
+    border-bottom: 1px solid #808080;
+  }
+  .menubar span { margin-right: 14px; }
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 6px;
+    background: #c0c0c0;
+    border: 2px solid;
+    border-color: #ffffff #404040 #404040 #ffffff;
+    font-size: 11px;
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    width: min(760px, calc(100vw - 40px));
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    z-index: 2;
+  }
+  .tools button {
+    box-sizing: border-box;
+    min-height: 26px;
+    padding: 2px 8px;
+    background: #c0c0c0;
+    color: #000000;
+    border: 2px solid;
+    border-color: #ffffff #404040 #404040 #ffffff;
+    font: 11px Tahoma, "MS Sans Serif", Arial, sans-serif;
+    cursor: pointer;
+  }
+  .tools button:active {
+    border-color: #404040 #ffffff #ffffff #404040;
+  }
+  .tools .toggle[aria-pressed="true"] {
+    background: #008080;
+    color: #ffffff;
+    border: 3px solid #004040;
+  }
+  .tools .screenshot {
+    margin-left: auto;
+  }
+  .hint {
+    margin-left: 3px;
+    color: #303030;
+  }
+  .doc {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid;
+    border-color: #404040 #ffffff #ffffff #404040;
+    margin: 0;
+    padding: 10px 12px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    flex: 1 1 400px;
+    overflow: auto;
+    box-sizing: border-box;
+    min-height: 200px;
+    outline: none;
+    cursor: text;
+  }
+  .doc:focus {
+    border-color: #000000 #ffffff #ffffff #000000;
+  }
+  .double-space {
+    background: #ffff00;
+    text-decoration: underline wavy #cc0000 1.5px;
+    text-decoration-skip-ink: none;
+  }
+  .statusbar {
+    min-height: 15px;
+    margin-top: 2px;
+    padding: 2px 3px 2px 5px;
+    border: 1px solid;
+    border-color: #808080 #ffffff #ffffff #808080;
+    color: #202020;
+    font-size: 10px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .status-text {
+    overflow: hidden;
+  }
+  .resize-handle {
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    flex: 0 0 14px;
+    cursor: nwse-resize;
+    touch-action: none;
+    background:
+      linear-gradient(135deg, transparent 0 45%, #ffffff 45% 52%, transparent 52% 60%, #404040 60% 67%, transparent 67%),
+      linear-gradient(135deg, transparent 0 65%, #ffffff 65% 72%, transparent 72% 80%, #404040 80% 87%, transparent 87%);
+  }
+  body.screenshot-mode .tools {
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="tools">
+  <button id="spell-toggle" class="toggle" type="button" aria-pressed="true" title="Toggle spelling (F7)">Spelling: ON</button>
+  <button id="spaces-toggle" class="toggle" type="button" aria-pressed="true" title="Toggle double-space marks (F8)">Double spaces: ON</button>
+  <span class="hint">Right-click a misspelling to correct it or add it to your dictionary.</span>
+  <button id="screenshot-toggle" class="screenshot" type="button" title="Hide tools and marks (F9)">Screenshot mode</button>
+</div>
+<div class="window">
+  <div class="titlebar">
+    <span>post.txt - Notepad</span>
+    <span class="buttons"><span>_</span><span>&#9633;</span><span>&#10005;</span></span>
+  </div>
+  <div class="menubar">
+    <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>S</u>earch</span><span><u>H</u>elp</span>
+  </div>
+<pre id="editor" class="doc" contenteditable="plaintext-only" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Editable article">Good writing tools should disappear while the writing remains. This page keeps the useful parts visible while you edit: spelling, repeated-space detection, and exact frame dimensions.
+
+Replace this example with your post. Drag the lower-right corner until the frame is the size you need, then press F9 to hide the editing controls without changing the layout. Take the screenshot, press Escape, and continue writing.</pre>
+  <div id="status" class="statusbar" aria-live="polite">
+    <span id="status-text" class="status-text"></span>
+    <span id="resize-handle" class="resize-handle" role="button" tabindex="0" aria-label="Drag to resize window" title="Drag to resize"></span>
+  </div>
+</div>
+<script>
+  const windowElement = document.querySelector(".window");
+  const editor = document.getElementById("editor");
+  const spellToggle = document.getElementById("spell-toggle");
+  const spacesToggle = document.getElementById("spaces-toggle");
+  const screenshotToggle = document.getElementById("screenshot-toggle");
+  const statusText = document.getElementById("status-text");
+  const resizeHandle = document.getElementById("resize-handle");
+  const storageKey = "post-tools-document";
+
+  let spellingEnabled = true;
+  let spacesEnabled = true;
+  let screenshotMode = false;
+  let settingsBeforeScreenshot;
+  let statusMessage = "saved automatically";
+
+  function selectionOffsets() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount || !editor.contains(selection.anchorNode)) {
+      return null;
+    }
+
+    const range = selection.getRangeAt(0);
+    const startRange = document.createRange();
+    startRange.selectNodeContents(editor);
+    startRange.setEnd(range.startContainer, range.startOffset);
+    const endRange = document.createRange();
+    endRange.selectNodeContents(editor);
+    endRange.setEnd(range.endContainer, range.endOffset);
+    return [startRange.toString().length, endRange.toString().length];
+  }
+
+  function textPosition(offset) {
+    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+    let node;
+    let remaining = offset;
+
+    while ((node = walker.nextNode())) {
+      if (remaining <= node.data.length) {
+        return [node, remaining];
+      }
+      remaining -= node.data.length;
+    }
+    return [editor, editor.childNodes.length];
+  }
+
+  function restoreSelection(offsets) {
+    if (!offsets) {
+      return;
+    }
+
+    const [startNode, startOffset] = textPosition(offsets[0]);
+    const [endNode, endOffset] = textPosition(offsets[1]);
+    const range = document.createRange();
+    range.setStart(startNode, startOffset);
+    range.setEnd(endNode, endOffset);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  function documentText() {
+    return editor.textContent;
+  }
+
+  function renderDoubleSpaces(keepSelection = true) {
+    const offsets = keepSelection ? selectionOffsets() : null;
+    const text = documentText();
+    const fragment = document.createDocumentFragment();
+    const pattern = / {2,}/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = pattern.exec(text))) {
+      fragment.append(document.createTextNode(text.slice(lastIndex, match.index)));
+      if (spacesEnabled) {
+        const mark = document.createElement("span");
+        mark.className = "double-space";
+        mark.textContent = match[0];
+        fragment.append(mark);
+      } else {
+        fragment.append(document.createTextNode(match[0]));
+      }
+      lastIndex = pattern.lastIndex;
+    }
+
+    fragment.append(document.createTextNode(text.slice(lastIndex)));
+    editor.replaceChildren(fragment);
+    restoreSelection(offsets);
+    updateStatus();
+  }
+
+  function updateStatus(message) {
+    if (message) {
+      statusMessage = message;
+    }
+    const text = documentText();
+    const doubleSpaces = (text.match(/ {2,}/g) || []).length;
+    const windowRect = windowElement.getBoundingClientRect();
+    const editorRect = editor.getBoundingClientRect();
+    statusText.textContent =
+      `${Math.round(windowRect.width)} × ${Math.round(windowRect.height)} px` +
+      ` · editor ${Math.round(editorRect.width)} × ${Math.round(editorRect.height)} px` +
+      ` · ${doubleSpaces} double-space${doubleSpaces === 1 ? "" : "s"} · ${statusMessage}`;
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(storageKey, documentText());
+      updateStatus("saved automatically");
+    } catch {
+      updateStatus("Browser storage is unavailable; edits remain on this open page.");
+    }
+  }
+
+  function updateToggle(button, enabled, label) {
+    button.setAttribute("aria-pressed", String(enabled));
+    button.textContent = `${label}: ${enabled ? "ON" : "OFF"}`;
+  }
+
+  function setSpelling(enabled) {
+    spellingEnabled = enabled;
+    editor.spellcheck = enabled;
+    updateToggle(spellToggle, enabled, "Spelling");
+    renderDoubleSpaces();
+  }
+
+  function setDoubleSpaces(enabled) {
+    spacesEnabled = enabled;
+    updateToggle(spacesToggle, enabled, "Double spaces");
+    renderDoubleSpaces();
+  }
+
+  function setScreenshotMode(enabled) {
+    screenshotMode = enabled;
+    if (enabled) {
+      settingsBeforeScreenshot = [spellingEnabled, spacesEnabled];
+      document.body.classList.add("screenshot-mode");
+      editor.spellcheck = false;
+      spacesEnabled = false;
+      renderDoubleSpaces(false);
+      editor.blur();
+    } else {
+      document.body.classList.remove("screenshot-mode");
+      const [previousSpelling, previousSpaces] = settingsBeforeScreenshot || [true, true];
+      spellingEnabled = previousSpelling;
+      spacesEnabled = previousSpaces;
+      editor.spellcheck = spellingEnabled;
+      updateToggle(spellToggle, spellingEnabled, "Spelling");
+      updateToggle(spacesToggle, spacesEnabled, "Double spaces");
+      renderDoubleSpaces(false);
+      editor.focus();
+    }
+  }
+
+  function insertText(text) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) {
+      return;
+    }
+
+    const range = selection.getRangeAt(0);
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    editor.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  spellToggle.addEventListener("click", () => setSpelling(!spellingEnabled));
+  spacesToggle.addEventListener("click", () => setDoubleSpaces(!spacesEnabled));
+  screenshotToggle.addEventListener("click", () => setScreenshotMode(true));
+
+  resizeHandle.addEventListener("pointerdown", event => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startRect = windowElement.getBoundingClientRect();
+    const bodyLeft = parseFloat(getComputedStyle(document.body).paddingLeft);
+    windowElement.style.marginLeft = `${startRect.left - bodyLeft}px`;
+    windowElement.style.marginRight = "0";
+    resizeHandle.setPointerCapture(event.pointerId);
+
+    function resize(pointerEvent) {
+      const width = Math.max(320, startRect.width + pointerEvent.clientX - startX);
+      const height = Math.max(280, startRect.height + pointerEvent.clientY - startY);
+      windowElement.style.width = `${width}px`;
+      windowElement.style.height = `${height}px`;
+      updateStatus();
+    }
+
+    function stop(pointerEvent) {
+      resizeHandle.releasePointerCapture(pointerEvent.pointerId);
+      resizeHandle.removeEventListener("pointermove", resize);
+      resizeHandle.removeEventListener("pointerup", stop);
+      resizeHandle.removeEventListener("pointercancel", stop);
+    }
+
+    resizeHandle.addEventListener("pointermove", resize);
+    resizeHandle.addEventListener("pointerup", stop);
+    resizeHandle.addEventListener("pointercancel", stop);
+  });
+
+  editor.addEventListener("beforeinput", event => {
+    if (event.inputType === "insertParagraph" || event.inputType === "insertLineBreak") {
+      event.preventDefault();
+      insertText("\n");
+    }
+  });
+
+  editor.addEventListener("paste", event => {
+    event.preventDefault();
+    insertText(event.clipboardData.getData("text/plain").replace(/\r\n?/g, "\n"));
+  });
+
+  editor.addEventListener("input", event => {
+    if (!event.isComposing) {
+      renderDoubleSpaces();
+      save();
+    }
+  });
+  editor.addEventListener("compositionend", () => {
+    renderDoubleSpaces();
+    save();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "F7") {
+      event.preventDefault();
+      setSpelling(!spellingEnabled);
+    } else if (event.key === "F8") {
+      event.preventDefault();
+      setDoubleSpaces(!spacesEnabled);
+    } else if (event.key === "F9") {
+      event.preventDefault();
+      setScreenshotMode(!screenshotMode);
+    } else if (event.key === "Escape" && screenshotMode) {
+      setScreenshotMode(false);
+    }
+  });
+
+  try {
+    const savedText = localStorage.getItem(storageKey);
+    if (savedText !== null) {
+      editor.textContent = savedText;
+    }
+  } catch {
+    updateStatus("Browser storage is unavailable; edits remain on this open page.");
+  }
+
+  new ResizeObserver(() => updateStatus()).observe(windowElement);
+  renderDoubleSpaces(false);
+</script>
+</body>
+</html>
