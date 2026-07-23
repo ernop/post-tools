@@ -13,8 +13,6 @@
   .window {
     width: min(760px, calc(100vw - 40px));
     max-width: calc(100vw - 40px);
-    min-width: 320px;
-    min-height: 280px;
     margin: 0 auto;
     background: #c0c0c0;
     border: 2px solid;
@@ -117,7 +115,7 @@
     flex: 1 1 400px;
     overflow: auto;
     box-sizing: border-box;
-    min-height: 200px;
+    min-height: 0;
     outline: none;
     cursor: text;
   }
@@ -379,8 +377,8 @@ Replace this example with your post. Drag the lower-right corner until the frame
     resizeHandle.setPointerCapture(event.pointerId);
 
     function resize(pointerEvent) {
-      const width = Math.max(320, startRect.width + pointerEvent.clientX - startX);
-      const height = Math.max(280, startRect.height + pointerEvent.clientY - startY);
+      const width = Math.max(0, startRect.width + pointerEvent.clientX - startX);
+      const height = Math.max(0, startRect.height + pointerEvent.clientY - startY);
       windowElement.style.width = `${width}px`;
       windowElement.style.height = `${height}px`;
       updateStatus();
