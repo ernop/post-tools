@@ -25,6 +25,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
   }
   .titlebar {
     background: #000080;
@@ -129,31 +130,36 @@
     text-decoration-skip-ink: none;
   }
   .statusbar {
-    min-height: 15px;
-    margin-top: 2px;
-    padding: 2px 3px 2px 5px;
-    border: 1px solid;
-    border-color: #808080 #ffffff #ffffff #808080;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-height: 22px;
+    padding: 3px 6px;
+    border-top: 2px solid #ffffff;
+    background: #c0c0c0;
+    box-shadow: 0 -1px 0 #404040;
     color: #202020;
-    font-size: 10px;
+    font-size: 11px;
     box-sizing: border-box;
-    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 6px;
     white-space: nowrap;
     overflow: hidden;
+    z-index: 10;
   }
   .status-text {
     overflow: hidden;
   }
   .resize-handle {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
     width: 14px;
     height: 14px;
-    margin-left: auto;
-    flex: 0 0 14px;
     cursor: nwse-resize;
     touch-action: none;
+    z-index: 1;
     background:
       linear-gradient(135deg, transparent 0 45%, #ffffff 45% 52%, transparent 52% 60%, #404040 60% 67%, transparent 67%),
       linear-gradient(135deg, transparent 0 65%, #ffffff 65% 72%, transparent 72% 80%, #404040 80% 87%, transparent 87%);
@@ -181,10 +187,10 @@
 <pre id="editor" class="doc" contenteditable="plaintext-only" spellcheck="true" role="textbox" aria-multiline="true" aria-label="Editable article">Good writing tools should disappear while the writing remains. This page keeps the useful parts visible while you edit: spelling, repeated-space detection, and exact frame dimensions.
 
 Replace this example with your post. Drag the lower-right corner until the frame is the size you need, then press F9 to hide the editing controls without changing the layout. Take the screenshot, press Escape, and continue writing.</pre>
-  <div id="status" class="statusbar" aria-live="polite">
-    <span id="status-text" class="status-text"></span>
-    <span id="resize-handle" class="resize-handle" role="button" tabindex="0" aria-label="Drag to resize window" title="Drag to resize"></span>
-  </div>
+  <span id="resize-handle" class="resize-handle" role="button" tabindex="0" aria-label="Drag to resize window" title="Drag to resize"></span>
+</div>
+<div id="status" class="statusbar" aria-live="polite">
+  <span id="status-text" class="status-text"></span>
 </div>
 <script>
   const windowElement = document.querySelector(".window");

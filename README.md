@@ -7,7 +7,7 @@ A local, single-file writing tool for producing precisely sized text screenshots
 - Edit text directly in the page.
 - Use the browser's spelling dictionary, including **Add to dictionary** from the right-click menu.
 - Find repeated spaces independently from spelling errors.
-- Resize the frame from its lower-right corner with live window and editor dimensions.
+- Resize the frame from its lower-right corner; live dimensions remain in a separate bar at the bottom of the browser viewport.
 - Hide editing controls and diagnostic marks without changing the frame's dimensions.
 - Recover edits automatically from browser storage.
 
